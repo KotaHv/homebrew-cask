@@ -1,14 +1,14 @@
 cask "animeko" do
   arch arm: "aarch64.dmg", intel: "x86_64.zip"
 
-  version "4.11.0"
-  sha256 arm:   "d2d5e1d3a23ae6f0b2542c78074f707d2e204396cc3e6c0aabcb0ceb053215c9",
-         intel: "427332071396278313d299b83ba87b7cf04375c7fae6d5e43fa4e352049229a2"
+  version "4.11.1"
+  sha256 arm:   "3054d31acf841f403ca58d2ea21c778fba93d09bc2ca75221ac50241dca93d25",
+         intel: "049a8c1b413e1619fc7b24807f6d24d3bb0fdd4120b9d9fc30ae029e95e663bb"
 
   url "https://github.com/open-ani/animeko/releases/download/v#{version}/ani-#{version}-macos-#{arch}",
       verified: "github.com/open-ani/animeko/"
   name "Animeko"
-  desc "Animeko 支持云同步观看记录 (Bangumi)、多视频数据源、缓存、弹幕、以及更多功能，提供尽可能简单且舒适的追番体验。"
+  desc "支持云同步观看记录 (Bangumi)、多视频数据源、缓存、弹幕、以及更多功能，提供尽可能简单且舒适的追番体验。"
   homepage "https://myani.org/"
 
   livecheck do
