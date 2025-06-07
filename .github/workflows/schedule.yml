@@ -1,0 +1,83 @@
+name: schedule
+
+on:
+  # pull_request:
+  #   branches: [main]
+  # push:
+  #   branches: [fix-*]
+  schedule:
+    # Every 12 hours
+    # - cron: "20 */12 * * *"
+    # Every day at 6am
+    - cron: "0 6 * * *"
+  # allow run manually
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.head_ref || github.ref_name }}
+
+permissions: write-all
+
+env:
+  HOMEBREW_DEVELOPER: 1
+  HOMEBREW_GITHUB_ACTIONS: 1
+  HOMEBREW_NO_AUTO_UPDATE: 1
+  HOMEBREW_NO_INSTALL_FROM_API: 1
+  HOMEBREW_RELOCATABLE_INSTALL_NAMES: 1
+
+jobs:
+  tap-syntax:
+    if: "!contains(github.event.head_commit.message, 'skip-build')"
+    runs-on: ubuntu-22.04
+    container:
+      image: ghcr.io/homebrew/ubuntu22.04:master
+    env:
+      HOMEBREW_SIMULATE_MACOS_ON_LINUX: 1
+    steps:
+      - name: Set up Homebrew
+        id: set-up-homebrew
+        uses: Homebrew/actions/setup-homebrew@master
+        with:
+          core: false
+          cask: false
+          test-bot: true
+
+      - run: brew test-bot --only-tap-syntax
+
+  bump-casks:
+    name: Bump casks
+    if: github.repository == 'KotaHv/homebrew-cask'
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [macos-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Homebrew
+        id: set-up-homebrew
+        uses: Homebrew/actions/setup-homebrew@master
+        with:
+          core: false
+          cask: false
+          test-bot: false
+
+      - name: Brew Tap
+        uses: ./.github/actions/brew-tap
+
+      - name: Git Cred
+        uses: ./.github/actions/git-cred
+        with:
+          HOMEBREW_GITHUB_API_TOKEN: ${{ secrets.HOMEBREW_GITHUB_API_TOKEN }}
+
+      - name: Bump
+        env:
+          HOMEBREW_DEVELOPER: "1"
+          HOMEBREW_GITHUB_API_TOKEN: ${{ secrets.HOMEBREW_GITHUB_API_TOKEN }}
+        shell: bash -ieo pipefail {0}
+        run: |
+          rsync -lrv --exclude=.git "$(pwd)" "$(brew --repository KotaHv/homebrew-cask)"
+          cd "$(brew --repository KotaHv/homebrew-cask)"
+          ./.github/actions/bump-casks/script.sh
