@@ -13,8 +13,8 @@ runs:
     - uses: oleksiyrudenko/gha-git-credentials@v2-latest
       with:
         global: true
-        name: "KotaBot"
-        email: "noreply@github.com"
+        name: "kotabot"
+        email: "kotabot@proton.me"
         token: "${{ inputs.HOMEBREW_GITHUB_API_TOKEN }}"
 
     - name: show git context
